@@ -1,56 +1,44 @@
 const readlineSync = require('readline-sync');
 
-function obtenerMedida(medida, tipo, indice) {
-  return +readlineSync.question(`Ingrese la medida de ${tipo} del paquete ${indice + 1}: `);
+function obtenerMedida(tipo, indice) {
+  return +readlineSync.question(`Ingrese la medida de ${tipo} del paquete ${indice} en cm: `);
 }
 
-const numeroDePaquetes = +readlineSync.question('Ingrese el número de paquetes que desea enviar: ');
+let cantidadDeEmpaques = +readlineSync.question("¿Cuántos empaques deseas agregar?: ");
+let totalDimensiones = 0;
+let totalImpuestos = 0;
+let totalDelFlete = 0;
+let promedioDelCostoDeProductos = 0;
+let numeroMayorDimension = 0;
+let productoMayorDimensiones=0;
+for (let i = 1; i <= cantidadDeEmpaques; i++) {
+  let anchoDelPaquete = obtenerMedida('ancho', i);
+  let alturaPaquete = obtenerMedida('altura', i);
+  let profundidadDelPaquete = obtenerMedida('profundidad', i);
 
-const paquetes = [];
+  let calculoDeDimensiones = anchoDelPaquete * alturaPaquete * profundidadDelPaquete * 100;
+  totalDelFlete += calculoDeDimensiones;
 
-for (let i = 0; i < numeroDePaquetes; i++) {
-  const ancho = Number(obtenerMedida('ancho', 'ancho', i));
-  const alto = Number(obtenerMedida('alto', 'alto', i));
-  const profundidad = Number(obtenerMedida('profundidad', 'profundidad', i));
+  let impuestosDelPaquete = 0;
 
-  const dimensiones = ancho * alto * profundidad;
-  const costo = dimensiones * 100;
-  let impuesto = 0;
-
-  if (dimensiones > 10000) {
-    impuesto = 0.2 * costo;
-  } else if (dimensiones > 1000) {
-    impuesto = 0.1 * costo;
+  if (calculoDeDimensiones > 10000) {
+    impuestosDelPaquete = calculoDeDimensiones * 0.20;
+  } else if (calculoDeDimensiones > 1000) {
+    impuestosDelPaquete = calculoDeDimensiones * 0.1;
   }
 
-  paquetes.push({
-    dimensiones,
-    costo,
-    impuesto,
-    costoTotal: costo + impuesto,
-  });
-}
+  totalImpuestos += impuestosDelPaquete;
 
-console.log('');
-
-let costoTotalFlete = paquetes.reduce((total, paquete) => total + paquete.costoTotal, 0);
-console.log(`1. El costo total del flete es de $${costoTotalFlete}`);
-
-let mayorDimensiones = 0;
-let productoMayorDimensiones = 0;
-
-for (let i = 0; i < paquetes.length; i++) {
-  if (paquetes[i].dimensiones > mayorDimensiones) {
-    mayorDimensiones = paquetes[i].dimensiones;
-    productoMayorDimensiones = i + 1;
+  if (calculoDeDimensiones > productoMayorDimensiones) {
+    productoMayorDimensiones = calculoDeDimensiones;
+    numeroMayorDimension = i;
   }
 }
 
-console.log(`2. El producto que tiene mayor dimensiones es: ${productoMayorDimensiones}`);
+totalDimensiones = totalDelFlete + totalImpuestos;
+promedioDelCostoDeProductos = totalDimensiones / cantidadDeEmpaques;
 
-let costosTotales = paquetes.reduce((total, paquete) => total + paquete.costoTotal, 0);
-let costoPromedio = costosTotales / paquetes.length;
-console.log(`3. El costo promedio de los productos del flete es de: $${costoPromedio.toFixed(2)}`);
-
-let impuestosTotales = paquetes.reduce((total, paquete) => total + paquete.impuesto, 0);
-console.log(`4. La empresa necesita saber cuánto debe pagar de impuestos por el flete: $${impuestosTotales.toFixed(2)}`);
+console.log(`1. El precio total del flete es: ${totalDimensiones}`);
+console.log(`2. El producto de mayores dimensiones es: Paquete ${numeroMayorDimension}`);
+console.log(`3. El promedio total del costo de los productos es: ${promedioDelCostoDeProductos}`);
+console.log(`4. La empresa debe pagar un total de ${totalImpuestos} en impuestos.`);
